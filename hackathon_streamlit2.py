@@ -79,6 +79,9 @@ date_fin = st.date_input("Fin de votre voyage: ", default_date_tomorrow)
 
 jour_vac = abs((date_fin - date_deb).days)
 
+nbr_personne = st.number_input("Pour combien de personnes? ", 
+                                min_value=1, max_value=None, placeholder="Type a number...")
+
 continent = st.radio("Quel continent voulez-vous voyager?", ['Europe', 'Asie', 'Afrique', 'Océanie', 
                                                              'Amérique', "Peu n'importe"])
 if continent == 'Europe':
@@ -98,19 +101,19 @@ else:
 
 nutri = st.number_input("Votre budget de repas: ", 
                                 min_value=1, max_value=None, placeholder="Type a number...")
-nutri1 = (nutri / jour_vac) / 3
+nutri1 = (nutri / nbr_personne / jour_vac) / 3
 preferance.append(nutri1)
 
 liste_budget = ['low_budget_repas', 'avg_budget_repas', 'high_budget_repas']
-if nutri < 20:
+if nutri1 < 20:
     hackat.drop([liste_budget[1], liste_budget[2]], axis=1, inplace=True)
     liste_budget = liste_budget[0]
-elif nutri > 60:
-    hackat.drop([liste_budget[0], liste_budget[2]], axis=1, inplace=True)
-    liste_budget = liste_budget[1]
-else:
+elif nutri1 > 60:
     hackat.drop([liste_budget[0], liste_budget[1]], axis=1, inplace=True)
     liste_budget = liste_budget[2]
+else:
+    hackat.drop([liste_budget[0], liste_budget[2]], axis=1, inplace=True)
+    liste_budget = liste_budget[1]
 
 trans1 = st.radio("Quel moyen de transport préférez-vous (local ou taxi)?", ['Local Transport', 'Taxi'])
 
@@ -120,58 +123,33 @@ if trans1 == 'Local Transport':
     hackat.drop([liste_trans[1]], axis=1, inplace=True)
     trans = st.number_input("Votre budget de transport: ", 
                                 min_value=1, max_value=None, placeholder="Type a number...")
-    transs = trans / jour_vac
+    transs = trans / nbr_personne / jour_vac / 5
     preferance.append(transs)
     liste_trans = liste_trans[0]
 if trans1 == 'Taxi':
     hackat.drop([liste_trans[0]], axis=1, inplace=True)
     trans = st.number_input("Votre budget de transport: ", 
                                 min_value=1, max_value=None, placeholder="Type a number...")
-    transs = trans / jour_vac
+    transs = trans / nbr_personne / jour_vac
     preferance.append(transs)
     liste_trans = liste_trans[1]
 
-
-heberge1 = st.radio("Nombre de chambres de la location (1 ou 3): ", ['1', '3'])
-liste_room = ['un_chambre', 'trois_chambre']
-if heberge1 == 1:
-    hackat.drop([liste_room[1]], axis=1, inplace=True)
-    heberge = st.number_input("Votre budget de location: ", 
+heberge = st.number_input("Votre budget de location en total: ", 
                                 min_value=1, max_value=None, placeholder="Type a number...")
-    hebergee = heberge / jour_vac
-    preferance.append(hebergee)
-    liste_room = liste_room[0]
-else:
-    hackat.drop([liste_room[0]], axis=1, inplace=True)
-    heberge = st.number_input("Votre budget de location: ", 
-                                min_value=1, max_value=None, placeholder="Type a number...")
-    hebergee = heberge / jour_vac
-    preferance.append(hebergee)
-    liste_room = liste_room[1]
+hebergee = heberge / nbr_personne / jour_vac
+preferance.append(hebergee)
 
 #User input shopping
 shopping = st.number_input("Votre budget pour le shopping (50-350$ ", 
                                 min_value=1, max_value=None, placeholder="Type a number...")
+shopping = shopping / nbr_personne
 preferance.append(shopping)
 
 # User input loisirs
-
-loisirs1 = st.radio("Quel est votre loisir préféré ?", ['Tennis', 'Cinema'])
-liste_loisir = ['tennis(une heure)', 'cinema']
-if loisirs1 == 'Tennis':
-    hackat.drop([liste_loisir[1]], axis=1, inplace=True)
-    loisirs = st.number_input("Votre budget pour tennis: ", 
+loisirs = st.number_input("Quel est votre budget pour les activités? ", 
                                 min_value=1, max_value=None, placeholder="Type a number...")
-    loisirss = loisirs / jour_vac
-    preferance.append(loisirss)
-    liste_loisir = liste_loisir[0]
-else:
-    hackat.drop([liste_loisir[0]], axis=1, inplace=True)
-    loisirs = st.number_input("Votre budget pour cinema: ", 
-                                min_value=1, max_value=None, placeholder="Type a number...")
-    loisirss = loisirs / jour_vac
-    preferance.append(loisirss)
-    liste_loisir = liste_loisir[1]
+loisirs = loisirs / nbr_personne / 3
+preferance.append(loisirs)
 
 
 preferance.append(date_deb.month)
@@ -188,8 +166,8 @@ else:
     preferance.append(2)
 
     
-df_model = hackat[['city', 'Region', liste_budget,  liste_trans, liste_room,  'shopping',
-                     liste_loisir, 'Month', 'temperature']]
+df_model = hackat[['city', 'Region', liste_budget,  liste_trans, 'location',  'shopping',
+                     'loisirs', 'Month', 'temperature']]
 
 dico = {'Froid':0,'Moyen':1, 'Chaud':2}
 
@@ -212,7 +190,7 @@ df_return.sort_values("city", inplace=True)
 df_return.drop_duplicates(subset="city", keep=False, inplace=True)
 df_return.drop(['Month'], axis=1, inplace=True)
 df_return[liste_budget] = df_return[liste_budget].apply(lambda x: round(x, 2))
-df_return[liste_room] = df_return[liste_room].apply(lambda x: round(x, 2))
+df_return['location'] = df_return['location'].apply(lambda x: round(x, 2))
 df_return[liste_trans] = df_return[liste_trans].apply(lambda x: round(x, 2))
   
 df_model.index = df_model['city']
@@ -247,7 +225,7 @@ for i, row in recom.iterrows():
         st.write("Pays:", str(row["country"]))
         st.write("Population:", str(row["Population"]))
         st.write("Budget Repas:", str(row[liste_budget]))
-        st.write("Budget Location:", str(row[liste_room]))
+        st.write("Budget Location:", str(row['location']))
         st.write("Budget Transport:", str(row[liste_trans]))
 
 df_return.drop(['link_img'], axis=1, inplace=True)
