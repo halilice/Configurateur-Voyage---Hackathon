@@ -10,7 +10,7 @@ pd.options.mode.chained_assignment = None
 page_bg_img = f"""
 <style>
 [data-testid="stAppViewContainer"] > .main {{
-background-image: url("https://wallpapers.com/images/hd/4k-summer-2880-x-1800-05lvl8tjkkb4v4av.jpg");
+background-image: url("https://img.freepik.com/free-photo/luxury-plain-green-gradient-abstract-studio-background-empty-room-with-space-your-text-picture_1258-70664.jpg");
 background-size: cover;
 background-position: center center;
 background-repeat: no-repeat;
