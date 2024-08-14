@@ -233,7 +233,7 @@ for i, row in recom.iterrows():
         st.write("Budget Transport:", str(row[liste_trans]))
 
 df_return.drop(['link_img'], axis=1, inplace=True)
-st.write(df_return.iloc[cli_ressem])
+#st.write(df_return.iloc[cli_ressem])
 
 
 
