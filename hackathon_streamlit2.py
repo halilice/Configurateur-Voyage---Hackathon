@@ -45,6 +45,10 @@ div[class*="stNumberInput"] label {
 
 st.write(tabs_font_css, unsafe_allow_html=True)
 
+left_co, cent_co,last_co = st.columns(3)
+with cent_co:
+    st.image('logo.png', width=150)
+
 st.title('Application du Configurateur de Voyage')
 
 st.text("""
