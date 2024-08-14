@@ -211,6 +211,9 @@ df_return.sort_values("city", inplace=True)
 # dropping ALL duplicate values
 df_return.drop_duplicates(subset="city", keep=False, inplace=True)
 df_return.drop(['Month'], axis=1, inplace=True)
+df_return[liste_budget] = df_return[liste_budget].apply(lambda x: round(x, 2))
+df_return[liste_room] = df_return[liste_room].apply(lambda x: round(x, 2))
+df_return[liste_trans] = df_return[liste_trans].apply(lambda x: round(x, 2))
   
 df_model.index = df_model['city']
 X = df_model.select_dtypes("number")
@@ -243,9 +246,9 @@ for i, row in recom.iterrows():
         st.write("Continent:", str(row["Region"]))
         st.write("Pays:", str(row["country"]))
         st.write("Population:", str(row["Population"]))
-        st.write("Budget Repas:", str(round(row[liste_budget]), 2))
-        st.write("Budget Location:", str(round(row[liste_room]), 2))
-        st.write("Budget Transport:", str(round(row[liste_trans]), 2))
+        st.write("Budget Repas:", str(row[liste_budget]))
+        st.write("Budget Location:", str(row[liste_room]))
+        st.write("Budget Transport:", str(row[liste_trans]))
 
 df_return.drop(['link_img'], axis=1, inplace=True)
 st.write(df_return.iloc[cli_ressem])
