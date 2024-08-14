@@ -60,6 +60,12 @@ hackat.drop(['Unnamed: 0'], axis=1, inplace=True)
 
 df_return = hackat.copy()
 
+# encoding column Region
+
+dico = {'Europe':1, 'Asie': 2, 'Afrique': 3, 'Océanie': 4, 'Amérique': 5}
+
+hackat['Region'] = hackat["Region"].replace(dico)
+
 preferance = []
 
 preferance.append('selection')
@@ -72,6 +78,23 @@ date_deb = st.date_input("Début de votre voyage: ", value="default_value_today"
 date_fin = st.date_input("Fin de votre voyage: ", default_date_tomorrow)
 
 jour_vac = abs((date_fin - date_deb).days)
+
+continent = st.radio("Quel continent voulez-vous voyager?", ['Europe', 'Asie', 'Afrique', 'Océanie', 
+                                                             'Amérique', "Peu n'importe"])
+if continent == 'Europe':
+    preferance.append(1)
+
+elif continent == 'Asie':
+    preferance.append(2)
+    
+elif continent == 'Afrique':
+    preferance.append(3)
+    
+elif continent == 'Océanie':
+    preferance.append(4)
+    
+else:
+    preferance.append(5)
 
 nutri = st.number_input("Votre budget de repas: ", 
                                 min_value=1, max_value=None, placeholder="Type a number...")
@@ -165,7 +188,7 @@ else:
     preferance.append(2)
 
     
-df_model = hackat[['city', liste_budget,  liste_trans, liste_room,  'shopping',
+df_model = hackat[['city', 'Region', liste_budget,  liste_trans, liste_room,  'shopping',
                      liste_loisir, 'Month', 'temperature']]
 
 dico = {'Froid':0,'Moyen':1, 'Chaud':2}
@@ -174,7 +197,7 @@ df_model['temperature'] = df_model["temperature"].replace(dico)
 
 df_model.loc[len(df_model), :] = preferance
 
-df_model = df_model[df_model['Month'] == preferance[6]]
+df_model = df_model[df_model['Month'] == preferance[7]]
 
 df_model.drop('Month', axis=1, inplace=True)
 # sorting by first name
@@ -182,7 +205,7 @@ df_model.sort_values("city", inplace=True)
 # dropping ALL duplicate values
 df_model.drop_duplicates(subset="city", keep=False, inplace=True)
     
-df_return = df_return[df_return['Month'] == preferance[6]]
+df_return = df_return[df_return['Month'] == preferance[7]]
 df_return.sort_values("city", inplace=True)
 
 # dropping ALL duplicate values
@@ -220,9 +243,9 @@ for i, row in recom.iterrows():
         st.write("Continent:", str(row["Region"]))
         st.write("Pays:", str(row["country"]))
         st.write("Population:", str(row["Population"]))
-        st.write("Budget Repas:", str(row[liste_budget]))
-        st.write("Budget Location:", str(row[liste_room]))
-        st.write("Budget Transport:", str(row[liste_trans]))
+        st.write("Budget Repas:", str(round(row[liste_budget]), 2))
+        st.write("Budget Location:", str(round(row[liste_room]), 2))
+        st.write("Budget Transport:", str(round(row[liste_trans]), 2))
 
 df_return.drop(['link_img'], axis=1, inplace=True)
 st.write(df_return.iloc[cli_ressem])
